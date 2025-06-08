@@ -4,23 +4,33 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.IO;
 
 namespace GraphicFilter
 {
     internal class ImageOperator
     {
-        public const string cppFunctionsDLL = @"E:\Projekty\cartoon_filter\x64\Debug\CppCode.dll";
-        [DllImport(cppFunctionsDLL, CallingConvention = CallingConvention.Cdecl)]
+        private const string CppDllName = "CppCode.dll";
+        [DllImport(CppDllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void cppApplyFilter(IntPtr arr, IntPtr remainder);
-        [DllImport(cppFunctionsDLL, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(CppDllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern byte cppCalcuateRemainder(byte pixelVal, byte divider);
 
-        public const string asmProcsDLL = @"E:\Projekty\cartoon_filter\x64\Debug\ASMCode.dll";
-        [DllImport(asmProcsDLL)]
+        private const string AsmDllName = "ASMCode.dll";
+        [DllImport(AsmDllName)]
         private static extern void asmApplyFilter(IntPtr arr, IntPtr remainder);
-        [DllImport(asmProcsDLL)]
+        [DllImport(AsmDllName)]
         private static extern byte asmCalcuateRemainder(byte pixelVal, byte divider);
+
+        static ImageOperator()
+        {
+            // Ustawienie ścieżki wyszukiwania DLL na katalog aplikacji
+            string dllDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            SetDllDirectory(dllDirectory);
+        }
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool SetDllDirectory(string lpPathName);
 
         const int size = 16;
         private BitmapData bmpData;

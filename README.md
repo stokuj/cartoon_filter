@@ -37,9 +37,28 @@ Open the solution in Visual Studio and build all projects. Make sure to build fo
 The `density` parameter (called `value` in the code) controls how much the image colors are simplified. Lower values cause a stronger cartoon/posterization effect (more color grouping), higher values keep the image closer to the original. Technically, it is the divider in the modulo operation for each color channel.
 
 ---
-
+ 
 ## Opis
 Aplikacja Windows Forms służąca do nakładania efektów komiksowych na obrazy. Projekt demonstruje integrację trzech różnych języków programowania (C#, C++ i Assembly) w celu stworzenia wydajnego rozwiązania do przetwarzania obrazów.
+
+## Struktura projektu
+
+Projekt został zorganizowany zgodnie z następującą strukturą katalogów:
+
+- `src/` - zawiera wszystkie projekty źródłowe:
+  - `ASMCode/` - projekt Assembly, zawierający zoptymalizowane funkcje przetwarzania obrazów
+  - `CppCode/` - projekt C++, implementujący podstawowe funkcje przetwarzania pikseli
+  - `GraphicFilterPrototyp/` - projekt C# Windows Forms, zapewniający interfejs użytkownika i integrację komponentów
+- `include/` - zawiera wspólne pliki nagłówkowe, np. `CImg.h`
+- `lib/` - katalog wyjściowy dla bibliotek DLL (ASMCode i CppCode) w podkatalogach odpowiadających konfiguracji (Debug, Release)
+- `bin/` - katalog wyjściowy dla plików wykonywalnych i zasobów projektu C#, z podkatalogami platformy i konfiguracji (np. `x64\Debug`)
+
+## Informacje dodatkowe
+
+- Pliki DLL z projektów ASMCode i CppCode są kompilowane do katalogu `lib` i następnie kopiowane do katalogu `bin` przez zdarzenie post-build w projekcie C#.
+- Takie podejście zapewnia, że plik wykonywalny ma dostęp do wymaganych bibliotek DLL podczas działania.
+- Pliki `lib`, `bin` oraz `obj` są ignorowane przez system kontroli wersji (git).
+
 
 ### Główne Funkcje
 - Wczytywanie i przetwarzanie różnych formatów obrazów (BMP, JPG, PNG)

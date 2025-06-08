@@ -3,15 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35919.96
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphicFilter", "GraphicFilterPrototyp\GraphicFilter.csproj", "{BC28FA63-8BD7-4E85-9612-7B4C1A10C76C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphicFilter", "src\GraphicFilterPrototyp\GraphicFilter.csproj", "{BC28FA63-8BD7-4E85-9612-7B4C1A10C76C}"
 	ProjectSection(ProjectDependencies) = postProject
 		{AFFC8256-EDBA-4FBC-B973-1FF7DB0D722E} = {AFFC8256-EDBA-4FBC-B973-1FF7DB0D722E}
 		{C85B7C65-3A76-4915-9AAA-B8F7CBE1CD55} = {C85B7C65-3A76-4915-9AAA-B8F7CBE1CD55}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CppCode", "CppCode\CppCode.vcxproj", "{AFFC8256-EDBA-4FBC-B973-1FF7DB0D722E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CppCode", "src\CppCode\CppCode.vcxproj", "{AFFC8256-EDBA-4FBC-B973-1FF7DB0D722E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ASMCode", "ASMCode\ASMCode.vcxproj", "{C85B7C65-3A76-4915-9AAA-B8F7CBE1CD55}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ASMCode", "src\ASMCode\ASMCode.vcxproj", "{C85B7C65-3A76-4915-9AAA-B8F7CBE1CD55}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E5B004BB-10D8-4728-B5B6-CDC405EDA0BA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,5 +65,10 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {040132AA-1B34-42B7-9477-159F83889212}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C85B7C65-3A76-4915-9AAA-B8F7CBE1CD55} = {E5B004BB-10D8-4728-B5B6-CDC405EDA0BA}
+		{AFFC8256-EDBA-4FBC-B973-1FF7DB0D722E} = {E5B004BB-10D8-4728-B5B6-CDC405EDA0BA}
+		{BC28FA63-8BD7-4E85-9612-7B4C1A10C76C} = {E5B004BB-10D8-4728-B5B6-CDC405EDA0BA}
 	EndGlobalSection
 EndGlobal
