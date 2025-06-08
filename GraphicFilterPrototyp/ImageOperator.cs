@@ -72,6 +72,8 @@ namespace GraphicFilter
             int count = 0;
             int stride = bmpData.Stride;
 
+            // Pomiar czasu całej operacji, nie pojedynczych pikseli
+            Stopwatch stopwatch = Stopwatch.StartNew();
             // loop creating arrays r g b from bitmaps
             for (int column = 0; column < bmpData.Height; column++)
             {
@@ -81,7 +83,6 @@ namespace GraphicFilter
                     green[count] = (rgbValues[(column * stride) + (row * 3) + 1]);
                     red[count] = (rgbValues[(column * stride) + (row * 3) + 2]);
 
-                    Stopwatch stopwatch = Stopwatch.StartNew();
                     if (isAsm)
                     {
                         redV[count] = asmCalcuateRemainder(red[count], (byte)value);
@@ -93,13 +94,12 @@ namespace GraphicFilter
                         redV[count] = cppCalcuateRemainder(red[count], (byte)value);
                         greenV[count] = cppCalcuateRemainder(green[count], (byte)value);
                         blueV[count] = cppCalcuateRemainder(blue[count], (byte)value);
-
                     }
-                    stopwatch.Stop();
-                    time += stopwatch.Elapsed.TotalMilliseconds;
                     count++;
                 }
             }
+            stopwatch.Stop();
+            time += stopwatch.Elapsed.TotalMilliseconds;
             bitmap.UnlockBits(bmpData);
         }
 
