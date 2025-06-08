@@ -31,6 +31,44 @@ The project consists of three main components:
 - x64 architecture
 - .NET Framework support
 
+### Project Structure
+
+```
+cartoon_filter/
+├── src/
+│   ├── ASMCode/           # Assembly code with SIMD optimizations
+│   ├── CppCode/           # C++ image processing implementation
+│   └── GraphicFilterPrototyp/  # C# application with GUI
+├── include/               # Shared headers (CImg.h)
+├── bin/                   # Compiled DLLs and executables
+├── ARCHITECTURE.md        # System architecture documentation
+└── README.md              # Project documentation
+```
+
+### Build Process Diagram:
+```mermaid
+graph TD
+    A[src/ASMCode/] -->|Compile| B[bin/x64/Debug/ASMCode.dll]
+    C[src/CppCode/] -->|Compile| D[bin/x64/Debug/CppCode.dll]
+    E[src/GraphicFilterPrototyp/] -->|Compile| F[src/GraphicFilterPrototyp/bin/x64/Debug/GraphicFilterPrototyp.exe]
+
+    B -->|Post-build copy| G[src/GraphicFilterPrototyp/bin/x64/Debug/ASMCode.dll]
+    D -->|Post-build copy| H[src/GraphicFilterPrototyp/bin/x64/Debug/CppCode.dll]
+
+    F -->|Uses at runtime| G
+    F -->|Uses at runtime| H
+```
+
+### Data Flow:
+```mermaid
+graph TD
+    A[Input image] --> B[Preprocessing - C#]
+    B --> C[Image processing - C++]
+    C --> D[Low-level optimizations - ASM]
+    D --> E[Rendering - C#]
+    E --> F[Output image]
+```
+
 ### Building the Project
 Open the solution in Visual Studio and build all projects. Make sure to build for x64 architecture.
 
@@ -50,15 +88,6 @@ The density parameter controls how detailed the cartoon effect will be:
 - Medium values (4-6): Balanced effect with moderate detail
 - Higher values (7-10): More detailed, closer to the original image
 
-### Troubleshooting
-If you encounter any issues:
-- Ensure all DLLs are present in the application directory
-- Verify your system meets the minimum requirements
-- Check if the input image format is supported
-
-### Density parameter
-:start_line:38
--------
 The `density` parameter (called `value` in the code) controls how much the image colors are simplified. Lower values cause a stronger cartoon/posterization effect (more color grouping), higher values keep the image closer to the original. Technically, it is the divider in the modulo operation for each color channel.
 
 **Improvements for code readability, performance, best practices, and error handling:**
@@ -103,7 +132,11 @@ inline uint8_t QuantizeColorChannel(uint8_t colorValue, int density) {
 //   pixel[channel] = QuantizeColorChannel(pixel[channel], density);
 ```
 
-This approach improves clarity by naming the function and variables meaningfully, adds input validation, and uses integer division for efficient quantization. It also documents the logic clearly for maintainers. Edge cases like zero or negative density are handled gracefully by returning the original color value.
+### Troubleshooting
+If you encounter any issues:
+- Ensure all DLLs are present in the application directory
+- Verify your system meets the minimum requirements
+- Check if the input image format is supported
 
 ---
 
@@ -111,10 +144,36 @@ This approach improves clarity by naming the function and variables meaningfully
 
 Aplikacja Windows Forms służąca do nakładania efektów komiksowych na obrazy. Projekt demonstruje integrację trzech różnych języków programowania (C#, C++ i Assembly) w celu stworzenia wydajnego rozwiązania do przetwarzania obrazów.
 
-## Struktura projektu
+### Kluczowe funkcje
+- Wczytywanie i przetwarzanie różnych formatów obrazów (BMP, JPG, PNG)
+- Nakładanie filtrów typu komiksowego na obrazy
+- Zoptymalizowana wydajność dzięki instrukcjom SIMD w Assembly
+- Przetwarzanie wielowątkowe wykorzystujące wszystkie dostępne rdzenie CPU
 
+### Szczegóły techniczne
+Projekt składa się z trzech głównych komponentów:
+1. **Aplikacja Windows Forms w C#**
+   - Zapewnia interfejs użytkownika
+   - Obsługuje wczytywanie i wyświetlanie obrazów
+   - Zarządza integracją między komponentami
 
-```bash
+2. **Biblioteka DLL w C++**
+   - Implementuje podstawowe funkcje przetwarzania pikseli
+   - Dostarcza algorytmy obliczania wartości pikseli
+
+3. **Biblioteka DLL w Assembly**
+   - Zawiera zoptymalizowane wersje funkcji przetwarzania obrazów
+   - Wykorzystuje instrukcje SIMD dla lepszej wydajności
+   - Przetwarza wiele pikseli jednocześnie
+
+### Wymagania systemowe
+- System operacyjny Windows
+- Architektura x64
+- Wsparcie dla .NET Framework
+
+### Struktura projektu
+
+```
 cartoon_filter/
 ├── src/
 │   ├── ASMCode/           # Kod źródłowy Assembly z optymalizacjami SIMD
@@ -138,30 +197,7 @@ graph TD
 
     F -->|Używa w runtime| G
     F -->|Używa w runtime| H
-
-    style B fill:#e1f5fe
-    style D fill:#e1f5fe
-    style F fill:#f3e5f5
-    style G fill:#e8f5e8
-    style H fill:#e8f5e8
 ```
-
-### Szczegóły komponentów:
-1. **ASMCode** - Zawiera funkcje niskopoziomowe zoptymalizowane przy użyciu:
-   - Instrukcji SIMD (SSE/AVX) do równoległego przetwarzania pikseli
-   - Asemblera x64 dla krytycznych ścieżek wykonania
-   - Optymalizacji pod kątem minimalnego zużycia pamięci
-
-2. **CppCode** - Implementuje:
-   - Podstawowe operacje na pikselach (modyfikacje kolorów, filtry)
-   - Logikę zarządzania bitmapami
-   - Interfejsy C-style do komunikacji z warstwą asemblerową
-
-3. **GraphicFilterPrototyp** - Aplikacja główna:
-   - GUI z możliwością wyboru obrazu i parametrów filtra
-   - Mechanizm wywoływania funkcji z bibliotek DLL
-   - Obsługa wielowątkowego przetwarzania
-   - Wizualizacja wyników w czasie rzeczywistym
 
 ### Przepływ danych:
 ```mermaid
@@ -173,63 +209,66 @@ graph TD
     E --> F[Obraz wyjściowy]
 ```
 
-### Opis procesu kompilacji:
-
-
-1. **Kompilacja natywnych bibliotek:**
-   - ASMCode i CppCode budują się bezpośrednio do `bin/x64/Debug/` (lub Release)
-   - Biblioteki zawierają zoptymalizowane funkcje przetwarzania obrazów
-
-2. **Kompilacja aplikacji C#:**
-   - GraphicFilterPrototyp buduje się do własnego katalogu `src/GraphicFilterPrototyp/bin/x64/Debug/`
-   - Po kompilacji uruchamia się post-build event
-
-3. **Post-build kopiowanie:**
-   - DLL są kopiowane z `bin/x64/Debug/` do katalogu aplikacji
-   - Zapewnia to dostęp do bibliotek w czasie uruchomienia
-
-## Informacje dodatkowe
-
-
-- Natywne biblioteki DLL (ASMCode.dll, CppCode.dll) są kompilowane bezpośrednio do `bin/x64/Debug/`
-- Post-build event w projekcie C# kopiuje te DLL do katalogu aplikacji
-- Struktura umożliwia łatwe uruchomienie aplikacji bez dodatkowej konfiguracji
-- Katalogi `bin/` i `obj/` są ignorowane przez system kontroli wersji (git)
-
-### Główne Funkcje
-
-- Wczytywanie i przetwarzanie różnych formatów obrazów (BMP, JPG, PNG)
-- Nakładanie filtrów typu komiksowego na obrazy
-- Zoptymalizowana wydajność dzięki instrukcjom SIMD w Assembly
-- Przetwarzanie wielowątkowe wykorzystujące wszystkie dostępne rdzenie CPU
-
-### Szczegóły Techniczne
-
-Projekt składa się z trzech głównych komponentów:
-1. **Aplikacja Windows Forms w C#**
-   - Zapewnia interfejs użytkownika
-   - Obsługuje wczytywanie i wyświetlanie obrazów
-   - Zarządza integracją między komponentami
-
-2. **Biblioteka DLL w C++**
-   - Implementuje podstawowe funkcje przetwarzania pikseli
-   - Dostarcza algorytmy obliczania wartości pikseli
-
-3. **Biblioteka DLL w Assembly**
-   - Zawiera zoptymalizowane wersje funkcji przetwarzania obrazów
-   - Wykorzystuje instrukcje SIMD dla lepszej wydajności
-   - Przetwarza wiele pikseli jednocześnie
-
-### Wymagania Systemowe
-
-- System operacyjny Windows
-- Architektura x64
-- Wsparcie dla .NET Framework
-
-### Kompilacja Projektu
-
+### Kompilacja projektu
 Otwórz rozwiązanie w Visual Studio i skompiluj wszystkie projekty. Upewnij się, że wybrana jest architektura x64.
 
+### Użycie aplikacji
+1. Uruchom aplikację
+2. Kliknij "Wczytaj obraz", aby wybrać plik graficzny
+3. Dostosuj parametry filtra:
+   - Density: kontroluje poziom szczegółowości efektu komiksowego
+   - Pozostałe parametry można regulować za pomocą suwaków
+4. Kliknij "Zastosuj filtr", aby przetworzyć obraz
+5. Zapisz przetworzony obraz przyciskiem "Zapisz obraz"
+
 ### Parametr density
+Parametr density kontroluje szczegółowość efektu komiksowego:
+- Niższe wartości (1-3): bardziej komiksowy, mniej detali
+- Średnie wartości (4-6): zbalansowany efekt
+- Wyższe wartości (7-10): więcej detali, bliżej oryginału
 
 Parametr `density` (w kodzie jako `value`) określa stopień uproszczenia kolorów na obrazie. Niższe wartości powodują silniejszy efekt komiksowy (większe grupowanie kolorów), wyższe wartości zachowują więcej oryginalnych kolorów. Technicznie jest to dzielnik w operacji modulo dla każdej składowej koloru.
+
+**Sugestie dotyczące czytelności kodu, wydajności, dobrych praktyk i obsługi błędów:**
+
+1. **Czytelność i utrzymanie kodu:**
+   - Używaj opisowych nazw zmiennych zamiast ogólnych, np. `density` zamiast `value`
+   - Dodaj komentarze wyjaśniające kluczowe operacje, szczególnie logikę kwantyzacji
+   - Wydziel logikę kwantyzacji do osobnej funkcji
+
+2. **Optymalizacja wydajności:**
+   - Unikaj powtarzających się operacji modulo w pętli, preobliczaj wartości gdzie to możliwe
+   - Używaj arytmetyki całkowitoliczbowej
+   - Sprawdzaj zakres parametru density na początku
+
+3. **Dobre praktyki:**
+   - Waliduj parametry wejściowe i zgłaszaj błędy przy nieprawidłowych wartościach
+   - Używaj stałych dla magicznych liczb
+   - Stosuj spójne nazewnictwo i formatowanie
+
+4. **Obsługa błędów i przypadków brzegowych:**
+   - Obsłuż przypadki density = 0 lub < 0, aby uniknąć dzielenia przez zero
+   - Zapewnij wartości domyślne przy nieprawidłowych danych
+   - Funkcja powinna działać stabilnie nawet dla skrajnych wartości
+
+**Przykład poprawionej funkcji:**
+
+```cpp
+// Kwantyzacja pojedynczego kanału koloru na podstawie density
+inline uint8_t KwantyzujKolor(uint8_t wartosc, int density) {
+    if (density <= 0) {
+        // Unikaj dzielenia przez zero
+        return wartosc;
+    }
+    // Grupowanie kolorów w "kubełki" o rozmiarze density
+    return static_cast<uint8_t>((wartosc / density) * density);
+}
+// Użycie w pętli przetwarzania pikseli:
+// pixel[channel] = KwantyzujKolor(pixel[channel], density);
+```
+
+### Rozwiązywanie problemów
+Jeśli napotkasz problemy:
+- Upewnij się, że wszystkie DLL znajdują się w katalogu aplikacji
+- Zweryfikuj wymagania systemowe
+- Sprawdź, czy format obrazu jest obsługiwany
