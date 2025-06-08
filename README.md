@@ -33,40 +33,26 @@ The project consists of three main components:
 
 ### Project Structure
 
-```
-cartoon_filter/
-├── src/
-│   ├── ASMCode/           # Assembly code with SIMD optimizations
-│   ├── CppCode/           # C++ image processing implementation
-│   └── GraphicFilterPrototyp/  # C# application with GUI
-├── include/               # Shared headers (CImg.h)
-├── bin/                   # Compiled DLLs and executables
-├── ARCHITECTURE.md        # System architecture documentation
-└── README.md              # Project documentation
-```
-
-### Build Process Diagram:
 ```mermaid
 graph TD
-    A[src/ASMCode/] -->|Compile| B[bin/x64/Debug/ASMCode.dll]
-    C[src/CppCode/] -->|Compile| D[bin/x64/Debug/CppCode.dll]
-    E[src/GraphicFilterPrototyp/] -->|Compile| F[src/GraphicFilterPrototyp/bin/x64/Debug/GraphicFilterPrototyp.exe]
-
-    B -->|Post-build copy| G[src/GraphicFilterPrototyp/bin/x64/Debug/ASMCode.dll]
-    D -->|Post-build copy| H[src/GraphicFilterPrototyp/bin/x64/Debug/CppCode.dll]
-
-    F -->|Uses at runtime| G
-    F -->|Uses at runtime| H
-```
-
-### Data Flow:
-```mermaid
-graph TD
-    A[Input image] --> B[Preprocessing - C#]
-    B --> C[Image processing - C++]
-    C --> D[Low-level optimizations - ASM]
-    D --> E[Rendering - C#]
-    E --> F[Output image]
+    A[cartoon_filter] --> B[src]
+    A --> C[include]
+    A --> D[bin]
+    A --> E[ARCHITECTURE.md]
+    A --> F[README.md]
+    B --> B1[ASMCode]
+    B --> B2[CppCode]
+    B --> B3[GraphicFilterPrototyp]
+    D --> D1[x64]
+    D1 --> D2[Debug]
+    D2 --> D3[ASMCode.dll]
+    D2 --> D4[CppCode.dll]
+    D2 --> D5[GraphicFilterPrototyp.exe]
+    B1 --> B1a[ASMSource.asm]
+    B2 --> B2a[Source.cpp]
+    B2 --> B2b[CImg.h]
+    B3 --> B3a[Form1.cs]
+    B3 --> B3b[ImageOperator.cs]
 ```
 
 ### Building the Project
@@ -173,40 +159,26 @@ Projekt składa się z trzech głównych komponentów:
 
 ### Struktura projektu
 
-```
-cartoon_filter/
-├── src/
-│   ├── ASMCode/           # Kod źródłowy Assembly z optymalizacjami SIMD
-│   ├── CppCode/           # Implementacja podstawowych operacji na obrazach w C++
-│   └── GraphicFilterPrototyp/  # Aplikacja C# z interfejsem użytkownika
-├── include/               # Wspólne pliki nagłówkowe (CImg.h)
-├── bin/                   # Skompilowane biblioteki DLL i pliki wykonywalne
-├── ARCHITECTURE.md        # Dokumentacja architektury systemu
-└── README.md              # Instrukcja i opis projektu
-```
-
-### Diagram procesu budowania:
 ```mermaid
 graph TD
-    A[src/ASMCode/] -->|Kompilacja| B[bin/x64/Debug/ASMCode.dll]
-    C[src/CppCode/] -->|Kompilacja| D[bin/x64/Debug/CppCode.dll]
-    E[src/GraphicFilterPrototyp/] -->|Kompilacja| F[src/GraphicFilterPrototyp/bin/x64/Debug/GraphicFilterPrototyp.exe]
-
-    B -->|Post-build kopiowanie| G[src/GraphicFilterPrototyp/bin/x64/Debug/ASMCode.dll]
-    D -->|Post-build kopiowanie| H[src/GraphicFilterPrototyp/bin/x64/Debug/CppCode.dll]
-
-    F -->|Używa w runtime| G
-    F -->|Używa w runtime| H
-```
-
-### Przepływ danych:
-```mermaid
-graph TD
-    A[Obraz wejściowy] --> B[Wczytywanie i przetwarzanie wstępne - C#]
-    B --> C[Przetwarzanie obrazu - C++]
-    C --> D[Optymalizacje niskopoziomowe - ASM]
-    D --> E[Renderowanie wyników - C#]
-    E --> F[Obraz wyjściowy]
+    A[cartoon_filter] --> B[src]
+    A --> C[include]
+    A --> D[bin]
+    A --> E[ARCHITECTURE.md]
+    A --> F[README.md]
+    B --> B1[ASMCode]
+    B --> B2[CppCode]
+    B --> B3[GraphicFilterPrototyp]
+    D --> D1[x64]
+    D1 --> D2[Debug]
+    D2 --> D3[ASMCode.dll]
+    D2 --> D4[CppCode.dll]
+    D2 --> D5[GraphicFilterPrototyp.exe]
+    B1 --> B1a[ASMSource.asm]
+    B2 --> B2a[Source.cpp]
+    B2 --> B2b[CImg.h]
+    B3 --> B3a[Form1.cs]
+    B3 --> B3b[ImageOperator.cs]
 ```
 
 ### Kompilacja projektu
