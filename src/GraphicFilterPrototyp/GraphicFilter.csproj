@@ -154,10 +154,4 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>
-      copy "$(SolutionDir)bin\x64\$(Configuration)\ASMCode.dll" "$(TargetDir)"
-      copy "$(SolutionDir)bin\x64\$(Configuration)\CppCode.dll" "$(TargetDir)"
-    </PostBuildEvent>
-  </PropertyGroup>
 </Project>

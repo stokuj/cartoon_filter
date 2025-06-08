@@ -43,21 +43,84 @@ Aplikacja Windows Forms służąca do nakładania efektów komiksowych na obrazy
 
 ## Struktura projektu
 
-Projekt został zorganizowany zgodnie z następującą strukturą katalogów:
+```bash
+cartoon_filter/
+├── src/
+│   ├── ASMCode/           # Kod źródłowy Assembly z optymalizacjami SIMD
+│   ├── CppCode/           # Implementacja podstawowych operacji na obrazach w C++
+│   └── GraphicFilterPrototyp/  # Aplikacja C# z interfejsem użytkownika
+├── include/               # Wspólne pliki nagłówkowe (CImg.h)
+├── bin/                   # Skompilowane biblioteki DLL i pliki wykonywalne
+├── ARCHITECTURE.md        # Dokumentacja architektury systemu
+└── README.md              # Instrukcja i opis projektu
+```
 
-- `src/` - zawiera wszystkie projekty źródłowe:
-  - `ASMCode/` - projekt Assembly, zawierający zoptymalizowane funkcje przetwarzania obrazów
-  - `CppCode/` - projekt C++, implementujący podstawowe funkcje przetwarzania pikseli
-  - `GraphicFilterPrototyp/` - projekt C# Windows Forms, zapewniający interfejs użytkownika i integrację komponentów
-- `include/` - zawiera wspólne pliki nagłówkowe, np. `CImg.h`
-- `lib/` - katalog wyjściowy dla bibliotek DLL (ASMCode i CppCode) w podkatalogach odpowiadających konfiguracji (Debug, Release)
-- `bin/` - katalog wyjściowy dla plików wykonywalnych i zasobów projektu C#, z podkatalogami platformy i konfiguracji (np. `x64\Debug`)
+### Diagram procesu budowania:
+```mermaid
+graph TD
+    A[src/ASMCode/] -->|Kompilacja| B[bin/x64/Debug/ASMCode.dll]
+    C[src/CppCode/] -->|Kompilacja| D[bin/x64/Debug/CppCode.dll]
+    E[src/GraphicFilterPrototyp/] -->|Kompilacja| F[src/GraphicFilterPrototyp/bin/x64/Debug/GraphicFilterPrototyp.exe]
+    
+    B -->|Post-build kopiowanie| G[src/GraphicFilterPrototyp/bin/x64/Debug/ASMCode.dll]
+    D -->|Post-build kopiowanie| H[src/GraphicFilterPrototyp/bin/x64/Debug/CppCode.dll]
+    
+    F -->|Używa w runtime| G
+    F -->|Używa w runtime| H
+    
+    style B fill:#e1f5fe
+    style D fill:#e1f5fe
+    style F fill:#f3e5f5
+    style G fill:#e8f5e8
+    style H fill:#e8f5e8
+```
+
+### Szczegóły komponentów:
+1. **ASMCode** - Zawiera funkcje niskopoziomowe zoptymalizowane przy użyciu:
+   - Instrukcji SIMD (SSE/AVX) do równoległego przetwarzania pikseli
+   - Asemblera x64 dla krytycznych ścieżek wykonania
+   - Optymalizacji pod kątem minimalnego zużycia pamięci
+
+2. **CppCode** - Implementuje:
+   - Podstawowe operacje na pikselach (modyfikacje kolorów, filtry)
+   - Logikę zarządzania bitmapami
+   - Interfejsy C-style do komunikacji z warstwą asemblerową
+
+3. **GraphicFilterPrototyp** - Aplikacja główna:
+   - GUI z możliwością wyboru obrazu i parametrów filtra
+   - Mechanizm wywoływania funkcji z bibliotek DLL
+   - Obsługa wielowątkowego przetwarzania
+   - Wizualizacja wyników w czasie rzeczywistym
+
+### Przepływ danych:
+```mermaid
+graph TD
+    A[Obraz wejściowy] --> B[Wczytywanie i przetwarzanie wstępne - C#]
+    B --> C[Przetwarzanie obrazu - C++]
+    C --> D[Optymalizacje niskopoziomowe - ASM]
+    D --> E[Renderowanie wyników - C#]
+    E --> F[Obraz wyjściowy]
+
+### Opis procesu kompilacji:
+
+1. **Kompilacja natywnych bibliotek:**
+   - ASMCode i CppCode budują się bezpośrednio do `bin/x64/Debug/` (lub Release)
+   - Biblioteki zawierają zoptymalizowane funkcje przetwarzania obrazów
+
+2. **Kompilacja aplikacji C#:**
+   - GraphicFilterPrototyp buduje się do własnego katalogu `src/GraphicFilterPrototyp/bin/x64/Debug/`
+   - Po kompilacji uruchamia się post-build event
+
+3. **Post-build kopiowanie:**
+   - DLL są kopiowane z `bin/x64/Debug/` do katalogu aplikacji
+   - Zapewnia to dostęp do bibliotek w czasie uruchomienia
 
 ## Informacje dodatkowe
 
-- Pliki DLL z projektów ASMCode i CppCode są kompilowane do katalogu `lib` i następnie kopiowane do katalogu `bin` przez zdarzenie post-build w projekcie C#.
-- Takie podejście zapewnia, że plik wykonywalny ma dostęp do wymaganych bibliotek DLL podczas działania.
-- Pliki `lib`, `bin` oraz `obj` są ignorowane przez system kontroli wersji (git).
+- Natywne biblioteki DLL (ASMCode.dll, CppCode.dll) są kompilowane bezpośrednio do `bin/x64/Debug/`
+- Post-build event w projekcie C# kopiuje te DLL do katalogu aplikacji
+- Struktura umożliwia łatwe uruchomienie aplikacji bez dodatkowej konfiguracji
+- Katalogi `bin/` i `obj/` są ignorowane przez system kontroli wersji (git)
 
 
 ### Główne Funkcje
