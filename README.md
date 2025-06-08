@@ -33,6 +33,9 @@ The project consists of three main components:
 ### Building the Project
 Open the solution in Visual Studio and build all projects. Make sure to build for x64 architecture.
 
+### Density parameter
+The `density` parameter (called `value` in the code) controls how much the image colors are simplified. Lower values cause a stronger cartoon/posterization effect (more color grouping), higher values keep the image closer to the original. Technically, it is the divider in the modulo operation for each color channel.
+
 ---
 
 ## Opis
@@ -67,3 +70,6 @@ Projekt składa się z trzech głównych komponentów:
 
 ### Kompilacja Projektu
 Otwórz rozwiązanie w Visual Studio i skompiluj wszystkie projekty. Upewnij się, że wybrana jest architektura x64.
+
+### Parametr density
+Parametr `density` (w kodzie jako `value`) określa stopień uproszczenia kolorów na obrazie. Niższe wartości powodują silniejszy efekt komiksowy (większe grupowanie kolorów), wyższe wartości zachowują więcej oryginalnych kolorów. Technicznie jest to dzielnik w operacji modulo dla każdej składowej koloru.

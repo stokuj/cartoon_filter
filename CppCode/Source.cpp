@@ -1,35 +1,41 @@
 #define cppFunctions _declspec(dllexport)
+#include <emmintrin.h> // SSE2
 
 extern "C" {  
+    // Funkcja obliczająca zmodyfikowaną wartość piksela
+    // Zabezpieczenie przed dzieleniem przez zero
     cppFunctions unsigned char cppCalcuateRemainder(unsigned char pixel, unsigned char divider)
     {
-        if ((pixel % divider) > (divider / 2))
+        if (divider == 0) return 0; // zabezpieczenie
+        unsigned char rem = pixel % divider;
+        if (rem > (divider / 2))
         {
-            if ((unsigned char)(pixel + divider - (pixel % divider)) < pixel)
+            if ((unsigned char)(pixel + divider - rem) < pixel)
             {
-                return (255 - pixel);
+                // Zwracamy 255 - pixel, rzutowanie by uniknąć problemów z unsigned
+                return static_cast<unsigned char>(255 - pixel);
             }
             else
             {
-                return (divider - (pixel % divider));
+                return static_cast<unsigned char>(divider - rem);
             }
         }
         else
         {
-            return (0 - (pixel % divider));
+            // Zamiast 0 - rem (może dać wynik ujemny), używamy 256 - rem
+            return static_cast<unsigned char>(256 - rem);
         }
     }
 
-	cppFunctions void cppApplyFilter(unsigned char *arr, unsigned char *val)
-	{
-        unsigned char xmm1; 
-        unsigned char xmm2; 
-       for (int i = 0; i < 16; i++)
-       {
-           xmm1 = *(arr + i);
-           xmm2 = *(val + i);
-           xmm1 += xmm2;
-           *(arr + i) = xmm1;
-        }     
-	}
+    // SIMD: Przetwarzanie 16 bajtów naraz (SSE2)
+    cppFunctions void cppApplyFilter(unsigned char *arr, unsigned char *val)
+    {
+        // Zakładamy, że arr i val są wyrównane do 16 bajtów i mają co najmniej 16 bajtów
+        __m128i* pArr = (__m128i*)arr;
+        __m128i* pVal = (__m128i*)val;
+        __m128i v1 = _mm_loadu_si128(pArr);
+        __m128i v2 = _mm_loadu_si128(pVal);
+        v1 = _mm_add_epi8(v1, v2);
+        _mm_storeu_si128(pArr, v1);
+    }
 }

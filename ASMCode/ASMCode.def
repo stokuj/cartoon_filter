@@ -1,4 +1,4 @@
-LIBRARY ASMSource
+LIBRARY ASMCode
 EXPORTS 
 asmApplyFilter
 asmCalcuateRemainder
